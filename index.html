@@ -11,349 +11,334 @@
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{--red:#ff3b30;--red2:#e0321a;--red-glow:rgba(255,59,48,0.4);--dark:#060608;--card:#0c0c0f;--card2:#101014;--border:rgba(255,255,255,0.05);--text:#7a7a82;--white:#f5f5f7;--green:#30d158;--orange:#ff9f0a;--font:'Inter',system-ui,sans-serif;--display:'Space Grotesk',sans-serif}
+:root{
+  --red:#ff3b30;--red2:#e0321a;--red-glow:rgba(255,59,48,0.4);
+  --bg:#050508;--card:#0a0a0e;--card2:#0e0e13;
+  --border:rgba(255,255,255,0.04);--text:#6b6b73;--white:#f0f0f2;
+  --green:#30d158;--orange:#ff9f0a;
+  --font:'Inter',system-ui,sans-serif;--display:'Space Grotesk',sans-serif;
+}
 html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--dark);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.6}
+body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.6}
 ::selection{background:var(--red);color:#fff}
-a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
 button{cursor:pointer;font-family:var(--font);border:none;background:none;color:inherit}
 
-/* ─── Animations ─── */
-.fade-up{opacity:0;transform:translateY(40px);transition:opacity 0.8s cubic-bezier(0.16,1,0.3,1),transform 0.8s cubic-bezier(0.16,1,0.3,1)}
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.12)}
+
+/* Animations */
+.fade-up{opacity:0;transform:translateY(44px);transition:opacity 0.9s cubic-bezier(0.16,1,0.3,1),transform 0.9s cubic-bezier(0.16,1,0.3,1)}
 .fade-up.vis{opacity:1;transform:translateY(0)}
-.fd1{transition-delay:0.1s}.fd2{transition-delay:0.2s}.fd3{transition-delay:0.3s}.fd4{transition-delay:0.4s}
-@keyframes pulse{0%,100%{opacity:0.4;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-@keyframes glow-pulse{0%,100%{box-shadow:0 0 20px rgba(255,59,48,0.15)}50%{box-shadow:0 0 40px rgba(255,59,48,0.3)}}
-@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-@keyframes rotate-slow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.fd1{transition-delay:0.1s}.fd2{transition-delay:0.2s}.fd3{transition-delay:0.3s}.fd4{transition-delay:0.4s}.fd5{transition-delay:0.5s}
+@keyframes pulse{0%,100%{opacity:0.4;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
+@keyframes hero-float{0%,100%{transform:translateY(0px)}50%{transform:translateY(-18px)}}
+@keyframes glow-pulse{0%,100%{box-shadow:0 0 20px rgba(255,59,48,0.15)}50%{box-shadow:0 0 40px rgba(255,59,48,0.35)}}
+@keyframes grain{0%,100%{transform:translate(0,0)}10%{transform:translate(-5%,-10%)}20%{transform:translate(-15%,5%)}30%{transform:translate(7%,-25%)}40%{transform:translate(-5%,25%)}50%{transform:translate(-15%,10%)}60%{transform:translate(15%,0%)}70%{transform:translate(0%,15%)}80%{transform:translate(3%,35%)}90%{transform:translate(-10%,10%)}}
 
 /* ─── Nav ─── */
-.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.2rem 2rem;display:flex;align-items:center;justify-content:space-between;transition:all 0.4s}
-.nav.scrolled{background:rgba(6,6,8,0.92);backdrop-filter:blur(24px) saturate(1.5);border-bottom:1px solid var(--border);padding:0.8rem 2rem}
-.nav-logo{font-family:var(--display);font-size:1.3rem;font-weight:700;color:var(--white)}
-.nav-logo span{color:var(--red);text-shadow:0 0 20px var(--red-glow)}
-.nav-links{display:flex;gap:2rem;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;font-weight:600}
-.nav-links a{color:var(--text);transition:color 0.3s;position:relative}.nav-links a:hover{color:var(--white)}
-.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--red);transition:width 0.3s}.nav-links a:hover::after{width:100%}
-.btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.8rem;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;border-radius:8px;transition:all 0.3s}
-.btn-red{background:var(--red);color:#fff;box-shadow:0 4px 20px rgba(255,59,48,0.3)}.btn-red:hover{background:var(--red2);transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,59,48,0.4)}
-.btn-outline{border:1px solid rgba(255,255,255,0.12);color:var(--white);backdrop-filter:blur(10px)}.btn-outline:hover{border-color:var(--red);background:rgba(255,59,48,0.06)}
-.nav-mob{display:none;flex-direction:column;gap:5px;cursor:pointer}.nav-mob span{width:22px;height:2px;background:var(--white);transition:0.3s}
-@media(max-width:768px){.nav-links{position:fixed;top:0;right:-100%;width:70%;height:100vh;background:rgba(6,6,8,0.98);backdrop-filter:blur(20px);flex-direction:column;justify-content:center;padding:2rem;transition:right 0.4s;border-left:1px solid var(--border)}.nav-links.open{right:0}.nav-mob{display:flex}}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.2rem 3rem;display:flex;align-items:center;justify-content:space-between;transition:all 0.5s cubic-bezier(0.16,1,0.3,1)}
+.nav.scrolled{background:rgba(5,5,8,0.88);backdrop-filter:blur(30px) saturate(1.6);border-bottom:1px solid var(--border);padding:0.8rem 3rem}
+.nav-logo{font-family:var(--display);font-size:1.3rem;font-weight:700;color:var(--white);letter-spacing:-0.02em}
+.nav-logo span{color:var(--red);text-shadow:0 0 30px var(--red-glow)}
+.nav-center{display:flex;gap:2.5rem;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.2em;font-weight:700}
+.nav-center a{color:var(--text);transition:color 0.3s;position:relative;padding:0.3rem 0}
+.nav-center a:hover{color:var(--white)}
+.nav-center a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--red);transition:width 0.4s cubic-bezier(0.16,1,0.3,1)}
+.nav-center a:hover::after{width:100%}
+.nav-right{display:flex;gap:1rem;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.8rem;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;font-weight:700;border-radius:8px;transition:all 0.35s cubic-bezier(0.16,1,0.3,1);position:relative}
+.btn-red{background:var(--red);color:#fff;box-shadow:0 4px 25px rgba(255,59,48,0.3)}
+.btn-red:hover{background:var(--red2);transform:translateY(-2px);box-shadow:0 8px 40px rgba(255,59,48,0.45)}
+.btn-outline{border:1px solid rgba(255,255,255,0.1);color:var(--white);backdrop-filter:blur(10px)}
+.btn-outline:hover{border-color:rgba(255,59,48,0.4);background:rgba(255,59,48,0.06);color:var(--red)}
+.nav-mob{display:none;flex-direction:column;gap:5px;cursor:pointer;z-index:101}
+.nav-mob span{width:22px;height:2px;background:var(--white);transition:0.3s;border-radius:2px}
+@media(max-width:768px){
+  .nav{padding:1rem 1.5rem}
+  .nav.scrolled{padding:0.7rem 1.5rem}
+  .nav-center{position:fixed;top:0;right:-100%;width:70%;height:100vh;background:rgba(5,5,8,0.97);backdrop-filter:blur(30px);flex-direction:column;justify-content:center;padding:2rem;transition:right 0.5s cubic-bezier(0.16,1,0.3,1);border-left:1px solid var(--border);font-size:0.75rem;gap:2rem}
+  .nav-center.open{right:0}
+  .nav-mob{display:flex}
+}
 
 /* ─── Hero ─── */
-.hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding:6rem 2rem}
-#heroCanvas{position:absolute;inset:0;z-index:0}
-.hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(6,6,8,0.85) 0%,rgba(6,6,8,0.4) 50%,rgba(255,59,48,0.04) 100%);z-index:1}
-.hero-inner{position:relative;z-index:2;max-width:1200px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
-.hero-content{max-width:600px}
-.hero-3d{position:relative;aspect-ratio:1/1;max-width:500px;justify-self:end}
-.hero-3d iframe{width:100%;height:100%;border:none;border-radius:20px}
-.hero-3d::after{content:'';position:absolute;inset:-1px;border-radius:20px;border:1px solid rgba(255,59,48,0.12);pointer-events:none}
-.hero-3d .hero-3d-glow{position:absolute;bottom:-20%;left:10%;right:10%;height:40%;background:radial-gradient(ellipse,rgba(255,59,48,0.1),transparent 70%);filter:blur(30px);pointer-events:none}
-@media(max-width:900px){.hero-inner{grid-template-columns:1fr}.hero-3d{max-width:100%;margin-top:2rem}}
-.hero-badge{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,59,48,0.08);border:1px solid rgba(255,59,48,0.2);color:var(--red);font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;padding:0.5rem 1.2rem;border-radius:50px;margin-bottom:1.5rem;backdrop-filter:blur(10px)}
-.hero-badge .live{width:6px;height:6px;background:var(--red);border-radius:50%;animation:pulse 1.5s ease infinite;box-shadow:0 0 8px var(--red)}
-.hero h1{font-family:var(--display);font-size:clamp(3rem,8vw,5.8rem);font-weight:700;line-height:1.02;color:var(--white);margin-bottom:1.2rem;letter-spacing:-0.04em}
-.hero h1 em{font-style:normal;color:var(--red);text-shadow:0 0 60px var(--red-glow)}
-.hero p{font-size:1.05rem;max-width:500px;margin-bottom:2rem;line-height:1.8;font-weight:300;color:var(--text)}
+.hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding:8rem 3rem 6rem}
+.hero-grain{position:absolute;inset:-50%;width:200%;height:200%;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");animation:grain 8s steps(10) infinite;pointer-events:none;z-index:1;opacity:0.5}
+.hero-glow{position:absolute;top:-20%;right:-10%;width:900px;height:900px;background:radial-gradient(circle,rgba(255,59,48,0.06) 0%,rgba(255,59,48,0.02) 30%,transparent 70%);pointer-events:none;z-index:0}
+.hero-glow-2{position:absolute;bottom:-30%;left:-15%;width:700px;height:700px;background:radial-gradient(circle,rgba(255,59,48,0.03) 0%,transparent 60%);pointer-events:none;z-index:0}
+.hero-inner{position:relative;z-index:2;max-width:1300px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+.hero-content{max-width:620px}
+.hero-badge{display:inline-flex;align-items:center;gap:0.6rem;background:rgba(255,59,48,0.06);border:1px solid rgba(255,59,48,0.15);color:var(--red);font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;padding:0.55rem 1.4rem;border-radius:50px;margin-bottom:2rem;backdrop-filter:blur(10px)}
+.hero-badge .live-dot{width:6px;height:6px;background:var(--red);border-radius:50%;animation:pulse 1.5s ease infinite;box-shadow:0 0 10px var(--red)}
+.hero h1{font-family:var(--display);font-size:clamp(3.2rem,8vw,6rem);font-weight:700;line-height:1;color:var(--white);margin-bottom:1.4rem;letter-spacing:-0.04em}
+.hero h1 em{font-style:normal;color:var(--red);text-shadow:0 0 80px var(--red-glow)}
+.hero-sub{font-size:1.05rem;max-width:480px;margin-bottom:2.5rem;line-height:1.85;font-weight:300;color:var(--text)}
 .hero-ctas{display:flex;gap:1rem;flex-wrap:wrap}
-.hero-stats{display:flex;gap:3rem;margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border)}
-.hero-stat-val{font-family:var(--display);font-size:1.8rem;font-weight:700;color:var(--white)}
-.hero-stat-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text);margin-top:0.2rem}
-@media(max-width:768px){.hero-stats{gap:1.5rem}.hero-stat-val{font-size:1.3rem}}
+.hero-stats{display:flex;gap:3.5rem;margin-top:3.5rem;padding-top:2.5rem;border-top:1px solid var(--border)}
+.hero-stat-val{font-family:var(--display);font-size:1.9rem;font-weight:700;color:var(--white)}
+.hero-stat-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--text);margin-top:0.3rem;font-weight:700}
+
+/* Hero Sneaker */
+.hero-sneaker-wrap{position:relative;display:flex;align-items:center;justify-content:center;perspective:1200px}
+.hero-sneaker{position:relative;width:100%;max-width:520px;animation:hero-float 6s ease-in-out infinite;will-change:transform;transition:transform 0.1s ease-out}
+.hero-sneaker img{width:100%;height:auto;filter:drop-shadow(0 40px 80px rgba(0,0,0,0.6));transform-style:preserve-3d}
+.hero-sneaker-shadow{position:absolute;bottom:-8%;left:15%;right:15%;height:30%;background:radial-gradient(ellipse,rgba(255,59,48,0.12) 0%,transparent 70%);filter:blur(40px);pointer-events:none;transition:transform 0.1s ease-out}
+
+@media(max-width:900px){
+  .hero{padding:7rem 1.5rem 4rem}
+  .hero-inner{grid-template-columns:1fr;text-align:center}
+  .hero-content{max-width:100%}
+  .hero-sub{margin-left:auto;margin-right:auto}
+  .hero-ctas{justify-content:center}
+  .hero-stats{justify-content:center;gap:2rem}
+  .hero-sneaker-wrap{margin-top:2rem}
+  .hero-sneaker{max-width:360px}
+}
+@media(max-width:768px){.hero-stats{gap:1.5rem}.hero-stat-val{font-size:1.4rem}}
 
 /* ─── Section ─── */
-.section{padding:7rem 2rem;max-width:1200px;margin:0 auto}
-.section-tag{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.25em;color:var(--red);font-weight:700;margin-bottom:0.8rem}
-.section-title{font-family:var(--display);font-size:clamp(2rem,4.5vw,3rem);font-weight:700;color:var(--white);line-height:1.1;margin-bottom:1rem;letter-spacing:-0.03em}
-.section-sub{color:var(--text);max-width:500px;font-size:0.95rem;font-weight:300;line-height:1.8}
+.section{padding:8rem 3rem;max-width:1300px;margin:0 auto}
+.section-tag{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.25em;color:var(--red);font-weight:700;margin-bottom:0.8rem}
+.section-title{font-family:var(--display);font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--white);line-height:1.08;margin-bottom:1rem;letter-spacing:-0.03em}
+.section-sub{color:var(--text);max-width:480px;font-size:0.92rem;font-weight:300;line-height:1.85}
+.section-header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem;margin-bottom:3rem}
+@media(max-width:768px){.section{padding:5rem 1.5rem}}
 
-/* ─── Drop Cards (3D Tilt) ─── */
-.drops-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.4rem;margin-top:3rem}
-.drop-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color 0.4s,box-shadow 0.4s;cursor:pointer;position:relative;transform-style:preserve-3d;perspective:800px}
-.drop-card-inner{transition:transform 0.15s ease-out}
-.drop-card:hover{border-color:rgba(255,59,48,0.25);box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 40px rgba(255,59,48,0.08)}
-.drop-card-img{aspect-ratio:1/1;overflow:hidden;background:var(--card2);display:flex;align-items:center;justify-content:center;padding:1rem;position:relative}
-.drop-card-img::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 100%,rgba(255,59,48,0.06) 0%,transparent 70%);pointer-events:none}
-.drop-card-img img{width:88%;height:88%;object-fit:contain;transition:transform 0.6s cubic-bezier(0.16,1,0.3,1);filter:drop-shadow(0 20px 40px rgba(0,0,0,0.5))}
-.drop-card:hover .drop-card-img img{transform:scale(1.1) rotate(-5deg) translateY(-8px)}
-.drop-status{position:absolute;top:1rem;right:1rem;font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:0.35rem 0.9rem;border-radius:6px;z-index:2;backdrop-filter:blur(10px)}
+/* ─── Market Intel ─── */
+.intel{background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:8rem 3rem;position:relative;overflow:hidden}
+.intel::before{content:'';position:absolute;top:-40%;right:-15%;width:600px;height:600px;background:radial-gradient(circle,rgba(255,59,48,0.04) 0%,transparent 70%);pointer-events:none}
+.intel-inner{max-width:1300px;margin:0 auto;position:relative}
+.intel-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin-top:3rem}
+.intel-card{background:rgba(255,255,255,0.012);border:1px solid var(--border);border-radius:16px;padding:2.2rem 1.8rem;text-align:center;transition:all 0.5s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden;backdrop-filter:blur(10px)}
+.intel-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent);opacity:0;transition:opacity 0.5s}
+.intel-card:hover{border-color:rgba(255,59,48,0.12);transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.intel-card:hover::before{opacity:1}
+.intel-val{font-family:var(--display);font-size:2.4rem;font-weight:700;margin-bottom:0.4rem}
+.intel-val.green{color:var(--green)}.intel-val.red{color:var(--red)}.intel-val.white{color:var(--white)}.intel-val.orange{color:var(--orange)}
+.intel-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--text);font-weight:700}
+@media(max-width:900px){.intel{padding:5rem 1.5rem}}
+@media(max-width:768px){.intel-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.intel-grid{grid-template-columns:1fr}}
+
+/* ─── Drop Cards ─── */
+.drops-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.4rem}
+.drop-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color 0.5s,box-shadow 0.5s,transform 0.5s;cursor:pointer;position:relative}
+.drop-card:hover{border-color:rgba(255,59,48,0.2);box-shadow:0 30px 80px rgba(0,0,0,0.5),0 0 60px rgba(255,59,48,0.06);transform:translateY(-4px)}
+.drop-card-img{aspect-ratio:1/1;overflow:visible;background:var(--card2);display:flex;align-items:center;justify-content:center;padding:1.2rem;position:relative;perspective:800px}
+.drop-card-img img{width:85%;height:85%;object-fit:contain;transition:transform 0.15s ease-out;filter:drop-shadow(0 20px 40px rgba(0,0,0,0.5));transform-style:preserve-3d;will-change:transform}
+.drop-card-img .depth-shadow{position:absolute;bottom:8%;left:12%;right:12%;height:12%;background:rgba(0,0,0,0.35);filter:blur(18px);border-radius:50%;opacity:0;transition:opacity 0.5s,transform 0.15s ease-out;pointer-events:none}
+.drop-card:hover .depth-shadow{opacity:0.7}
+.drop-card-img .shoe-glow{position:absolute;bottom:0;left:10%;right:10%;height:30%;background:radial-gradient(ellipse,rgba(255,59,48,0.06),transparent 70%);filter:blur(25px);opacity:0;transition:opacity 0.5s;pointer-events:none}
+.drop-card:hover .shoe-glow{opacity:1}
+.drop-status{position:absolute;top:1rem;right:1rem;font-size:0.55rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:0.35rem 0.9rem;border-radius:6px;z-index:2;backdrop-filter:blur(10px)}
 .drop-status.live{background:var(--red);color:#fff;animation:glow-pulse 2s ease infinite}
 .drop-status.soon{background:rgba(255,159,10,0.9);color:#000}
-.drop-status.upcoming{background:rgba(255,255,255,0.06);color:var(--text);border:1px solid var(--border)}
-.drop-card-body{padding:1.2rem 1.5rem}
-.drop-brand{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.18em;color:var(--red);font-weight:700;margin-bottom:0.3rem}
-.drop-name{font-family:var(--display);font-size:1.05rem;font-weight:700;color:var(--white);margin-bottom:0.5rem;line-height:1.3}
-.drop-meta{display:flex;justify-content:space-between;align-items:center;font-size:0.8rem}
+.drop-status.upcoming{background:rgba(255,255,255,0.05);color:var(--text);border:1px solid var(--border)}
+.drop-card-body{padding:1.2rem 1.4rem 1.4rem}
+.drop-brand{font-size:0.55rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--red);font-weight:700;margin-bottom:0.3rem}
+.drop-name{font-family:var(--display);font-size:1rem;font-weight:700;color:var(--white);margin-bottom:0.6rem;line-height:1.3}
+.drop-meta{display:flex;justify-content:space-between;align-items:center;font-size:0.78rem}
 .drop-date{color:var(--text)}
-.drop-retail{color:var(--white);font-weight:700}
-.drop-resale{font-size:0.7rem;margin-top:0.4rem}
-.drop-resale .up{color:var(--green);font-weight:600}.drop-resale .down{color:var(--red);font-weight:600}
-
-/* ─── Resale Intel ─── */
-.intel{background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:7rem 2rem;position:relative;overflow:hidden}
-.intel::before{content:'';position:absolute;top:-50%;right:-20%;width:600px;height:600px;background:radial-gradient(circle,rgba(255,59,48,0.04) 0%,transparent 70%);pointer-events:none}
-.intel-inner{max-width:1200px;margin:0 auto;position:relative}
-.intel-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin-top:3rem}
-.intel-card{background:rgba(255,255,255,0.015);border:1px solid var(--border);border-radius:16px;padding:2rem 1.5rem;text-align:center;transition:all 0.4s;position:relative;overflow:hidden}
-.intel-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent);opacity:0;transition:opacity 0.4s}
-.intel-card:hover{border-color:rgba(255,59,48,0.15);transform:translateY(-4px)}.intel-card:hover::before{opacity:1}
-.intel-val{font-family:var(--display);font-size:2.2rem;font-weight:700;margin-bottom:0.3rem}
-.intel-val.green{color:var(--green)}.intel-val.red{color:var(--red)}.intel-val.white{color:var(--white)}.intel-val.orange{color:var(--orange)}
-.intel-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--text)}
-@media(max-width:768px){.intel-grid{grid-template-columns:1fr 1fr}}
+.drop-retail{color:var(--white);font-weight:700;font-family:var(--display)}
+.drop-resale{font-size:0.7rem;margin-top:0.5rem}
+.drop-resale .up{color:var(--green);font-weight:600}
+.drop-resale .down{color:var(--red);font-weight:600}
+@media(max-width:1100px){.drops-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.drops-grid{grid-template-columns:1fr}}
 
 /* ─── Guides ─── */
-.guide-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
-.guide{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:all 0.4s;cursor:pointer}
-.guide:hover{border-color:rgba(255,59,48,0.2);transform:translateY(-5px);box-shadow:0 20px 50px rgba(0,0,0,0.4)}
+.guide-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.guide{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:all 0.5s cubic-bezier(0.16,1,0.3,1);cursor:pointer}
+.guide:hover{border-color:rgba(255,59,48,0.15);transform:translateY(-6px);box-shadow:0 25px 60px rgba(0,0,0,0.4)}
 .guide-img{aspect-ratio:16/10;overflow:hidden;position:relative}
-.guide-img img{width:100%;height:100%;object-fit:cover;transition:all 0.6s cubic-bezier(0.16,1,0.3,1)}
-.guide-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,var(--card) 0%,transparent 40%);pointer-events:none}
+.guide-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.7s cubic-bezier(0.16,1,0.3,1)}
+.guide-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,var(--card) 0%,rgba(10,10,14,0.3) 40%,transparent 100%);pointer-events:none}
 .guide:hover .guide-img img{transform:scale(1.08)}
-.guide-body{padding:1.5rem}
-.guide-cat{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--red);font-weight:700;margin-bottom:0.4rem}
-.guide-title{font-family:var(--display);font-size:1rem;font-weight:700;color:var(--white);margin-bottom:0.5rem;line-height:1.3}
-.guide-desc{font-size:0.82rem;line-height:1.7;font-weight:300}
-@media(max-width:768px){.guide-grid{grid-template-columns:1fr}}
+.guide-body{padding:1.5rem 1.5rem 1.8rem}
+.guide-cat{font-size:0.55rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--red);font-weight:700;margin-bottom:0.5rem}
+.guide-title{font-family:var(--display);font-size:1rem;font-weight:700;color:var(--white);margin-bottom:0.5rem;line-height:1.35}
+.guide-desc{font-size:0.82rem;line-height:1.75;font-weight:300}
+@media(max-width:900px){.guide-grid{grid-template-columns:1fr}}
 
 /* ─── Digital Products ─── */
-.prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
-.prod{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:all 0.4s;position:relative;overflow:hidden}
-.prod::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,59,48,0.03) 0%,transparent 50%);opacity:0;transition:opacity 0.4s;pointer-events:none}
-.prod:hover{border-color:rgba(255,59,48,0.25);transform:translateY(-5px);box-shadow:0 20px 50px rgba(0,0,0,0.4)}.prod:hover::before{opacity:1}
-.prod-icon{font-size:2.4rem;margin-bottom:1.2rem;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.3))}
-.prod-tag{position:absolute;top:1.2rem;right:1.2rem;font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:0.3rem 0.8rem;border-radius:6px;background:rgba(255,59,48,0.08);color:var(--red);border:1px solid rgba(255,59,48,0.15)}
-.prod-title{font-family:var(--display);font-size:1.1rem;font-weight:700;color:var(--white);margin-bottom:0.5rem}
-.prod-desc{font-size:0.82rem;line-height:1.7;margin-bottom:1.8rem;font-weight:300}
+.prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.prod{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2.2rem;transition:all 0.5s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden;backdrop-filter:blur(10px)}
+.prod::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,59,48,0.025) 0%,transparent 50%);opacity:0;transition:opacity 0.5s;pointer-events:none}
+.prod:hover{border-color:rgba(255,59,48,0.2);transform:translateY(-6px);box-shadow:0 25px 60px rgba(0,0,0,0.4)}
+.prod:hover::before{opacity:1}
+.prod-icon{font-size:2.4rem;margin-bottom:1.2rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3))}
+.prod-tag{position:absolute;top:1.2rem;right:1.2rem;font-size:0.55rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:0.3rem 0.8rem;border-radius:6px;background:rgba(255,59,48,0.06);color:var(--red);border:1px solid rgba(255,59,48,0.12)}
+.prod-title{font-family:var(--display);font-size:1.08rem;font-weight:700;color:var(--white);margin-bottom:0.5rem}
+.prod-desc{font-size:0.82rem;line-height:1.75;margin-bottom:2rem;font-weight:300}
 .prod-bottom{display:flex;align-items:center;justify-content:space-between}
 .prod-price{font-family:var(--display);font-size:1.5rem;font-weight:700;color:var(--white)}
-@media(max-width:768px){.prod-grid{grid-template-columns:1fr}}
+@media(max-width:900px){.prod-grid{grid-template-columns:1fr}}
 
 /* ─── Newsletter ─── */
-.newsletter{background:linear-gradient(135deg,var(--red) 0%,#cc2a22 100%);padding:6rem 2rem;text-align:center;position:relative;overflow:hidden}
-.newsletter::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 50%,rgba(255,255,255,0.05) 0%,transparent 50%);pointer-events:none}
-.newsletter h2{font-family:var(--display);font-size:clamp(1.6rem,4vw,2.6rem);font-weight:700;color:#fff;margin-bottom:0.5rem;position:relative}
-.newsletter p{color:rgba(255,255,255,0.7);font-size:0.9rem;margin-bottom:2rem;position:relative}
-.nl-form{display:flex;gap:0;max-width:500px;margin:0 auto;position:relative}
-.nl-form input{flex:1;padding:1rem 1.2rem;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.15);color:#fff;font-family:var(--font);font-size:0.9rem;outline:none;border-radius:10px 0 0 10px;backdrop-filter:blur(10px)}
-.nl-form input::placeholder{color:rgba(255,255,255,0.35)}
-.nl-form input:focus{border-color:rgba(255,255,255,0.4);background:rgba(0,0,0,0.3)}
-.nl-form button{background:#000;color:#fff;padding:1rem 2rem;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.12em;font-weight:700;border-radius:0 10px 10px 0;white-space:nowrap;transition:all 0.3s}
-.nl-form button:hover{background:#1a1a1a;transform:scale(1.02)}
-.nl-perks{display:flex;justify-content:center;gap:2rem;margin-top:1.5rem;font-size:0.72rem;color:rgba(255,255,255,0.55);position:relative;flex-wrap:wrap}
+.newsletter{background:linear-gradient(135deg,var(--red) 0%,#c22820 100%);padding:7rem 3rem;text-align:center;position:relative;overflow:hidden}
+.newsletter::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 50%,rgba(255,255,255,0.04) 0%,transparent 50%);pointer-events:none}
+.newsletter::after{content:'';position:absolute;bottom:-50%;right:-30%;width:600px;height:600px;background:radial-gradient(circle,rgba(0,0,0,0.15) 0%,transparent 60%);pointer-events:none}
+.newsletter h2{font-family:var(--display);font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;color:#fff;margin-bottom:0.6rem;position:relative;letter-spacing:-0.02em}
+.newsletter p{color:rgba(255,255,255,0.65);font-size:0.9rem;margin-bottom:2.5rem;position:relative;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.7}
+.nl-form{display:flex;gap:0;max-width:480px;margin:0 auto;position:relative}
+.nl-form input{flex:1;padding:1rem 1.3rem;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.12);color:#fff;font-family:var(--font);font-size:0.88rem;outline:none;border-radius:10px 0 0 10px;backdrop-filter:blur(10px);transition:all 0.3s}
+.nl-form input::placeholder{color:rgba(255,255,255,0.3)}
+.nl-form input:focus{border-color:rgba(255,255,255,0.35);background:rgba(0,0,0,0.3)}
+.nl-form button{background:#000;color:#fff;padding:1rem 2rem;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;font-weight:700;border-radius:0 10px 10px 0;white-space:nowrap;transition:all 0.3s}
+.nl-form button:hover{background:#1a1a1a}
+.nl-perks{display:flex;justify-content:center;gap:2rem;margin-top:1.5rem;font-size:0.7rem;color:rgba(255,255,255,0.5);position:relative;flex-wrap:wrap}
 .nl-perks span::before{content:'\2713 ';font-weight:700}
-@media(max-width:768px){.nl-perks{gap:1rem}}
+@media(max-width:768px){.newsletter{padding:5rem 1.5rem}.nl-perks{gap:1rem}}
 
 /* ─── Footer ─── */
-.footer{background:#040405;padding:5rem 2rem 3rem;border-top:1px solid var(--border)}
-.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem}
-.footer-logo{font-family:var(--display);font-size:1.2rem;font-weight:700;color:var(--white);margin-bottom:0.8rem}
+.footer{background:#030305;padding:5rem 3rem 3rem;border-top:1px solid var(--border)}
+.footer-inner{max-width:1300px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem}
+.footer-logo{font-family:var(--display);font-size:1.2rem;font-weight:700;color:var(--white);margin-bottom:0.8rem;letter-spacing:-0.02em}
 .footer-logo span{color:var(--red)}
-.footer-desc{font-size:0.8rem;line-height:1.8;font-weight:300;max-width:280px}
-.footer h4{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.18em;color:var(--text);margin-bottom:1.2rem;font-weight:700}
-.footer ul{list-style:none}.footer ul li{margin-bottom:0.6rem}
-.footer ul a{font-size:0.8rem;color:rgba(255,255,255,0.25);transition:color 0.3s}.footer ul a:hover{color:var(--red)}
-.footer-bottom{max-width:1200px;margin:3rem auto 0;padding-top:2rem;border-top:1px solid var(--border);text-align:center;font-size:0.68rem;color:rgba(255,255,255,0.12)}
-@media(max-width:768px){.footer-inner{grid-template-columns:1fr 1fr;gap:2rem}}
+.footer-desc{font-size:0.8rem;line-height:1.85;font-weight:300;max-width:280px}
+.footer h4{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--text);margin-bottom:1.2rem;font-weight:700}
+.footer ul{list-style:none}
+.footer ul li{margin-bottom:0.6rem}
+.footer ul a{font-size:0.8rem;color:rgba(255,255,255,0.2);transition:color 0.3s}
+.footer ul a:hover{color:var(--red)}
+.footer-bottom{max-width:1300px;margin:3rem auto 0;padding-top:2rem;border-top:1px solid var(--border);text-align:center;font-size:0.65rem;color:rgba(255,255,255,0.1)}
+@media(max-width:768px){.footer{padding:4rem 1.5rem 2rem}.footer-inner{grid-template-columns:1fr 1fr;gap:2rem}}
+@media(max-width:480px){.footer-inner{grid-template-columns:1fr}}
 
 /* ─── Toast ─── */
-.toast{position:fixed;bottom:2rem;right:2rem;background:var(--green);color:#000;padding:1rem 2rem;font-size:0.85rem;font-weight:600;border-radius:10px;z-index:400;transform:translateY(100px);opacity:0;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);pointer-events:none;box-shadow:0 8px 30px rgba(48,209,88,0.3)}
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--green);color:#000;padding:1rem 2rem;font-size:0.85rem;font-weight:600;border-radius:10px;z-index:400;transform:translateY(100px);opacity:0;transition:all 0.5s cubic-bezier(0.16,1,0.3,1);pointer-events:none;box-shadow:0 8px 30px rgba(48,209,88,0.3)}
 .toast.show{transform:translateY(0);opacity:1}
 
-/* ─── 4D Viewer Section ─── */
-.viewer-section{padding:7rem 2rem;background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);position:relative;overflow:hidden}
-.viewer-section::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(255,59,48,0.06) 0%,transparent 70%);pointer-events:none}
-.viewer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
-.viewer-canvas-wrap{position:relative;aspect-ratio:1/1;max-width:550px;border-radius:20px;overflow:hidden;background:radial-gradient(circle at 50% 50%,rgba(255,59,48,0.03),transparent 70%);border:1px solid var(--border)}
-.viewer-canvas-wrap iframe{width:100%;height:100%;border:none;border-radius:20px}
-.viewer-hud{position:absolute;top:1rem;left:1rem;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--red);font-weight:700;display:flex;flex-direction:column;gap:0.3rem;pointer-events:none}
-.viewer-hud span{display:flex;align-items:center;gap:0.4rem}
-.viewer-hud .dot{width:4px;height:4px;background:var(--red);border-radius:50%;animation:pulse 2s ease infinite}
-.viewer-hint{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);font-size:0.65rem;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.12em;pointer-events:none;transition:opacity 0.5s}
-.viewer-info{display:flex;flex-direction:column;gap:1.5rem}
-.viewer-info .section-tag{margin-bottom:0}
-.viewer-features{display:flex;flex-direction:column;gap:1rem;margin-top:1rem}
-.viewer-feat{display:flex;gap:1rem;align-items:flex-start}
-.viewer-feat-icon{width:40px;height:40px;border-radius:10px;background:rgba(255,59,48,0.08);border:1px solid rgba(255,59,48,0.15);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
-.viewer-feat-text h4{font-family:var(--display);font-size:0.9rem;font-weight:700;color:var(--white);margin-bottom:0.2rem}
-.viewer-feat-text p{font-size:0.78rem;line-height:1.6;font-weight:300}
-@media(max-width:768px){.viewer-inner{grid-template-columns:1fr;gap:2rem}.viewer-canvas-wrap{max-width:100%}}
-
-/* ─── Drop Card Parallax Depth ─── */
-.drop-card-img{position:relative;perspective:800px;overflow:visible}
-.drop-card-img img{transform-style:preserve-3d;will-change:transform;transition:transform 0.15s ease-out}
-.drop-card-img .shoe-reflection{position:absolute;bottom:-5%;left:15%;right:15%;height:25%;background:radial-gradient(ellipse,rgba(255,59,48,0.08),transparent 70%);filter:blur(20px);opacity:0;transition:opacity 0.5s;pointer-events:none;z-index:0}
-.drop-card:hover .shoe-reflection{opacity:1}
-/* Parallax depth layers — image floats in 3D on mouse move */
-.drop-card-img .depth-shadow{position:absolute;bottom:5%;left:10%;right:10%;height:15%;background:rgba(0,0,0,0.4);filter:blur(20px);border-radius:50%;opacity:0;transition:opacity 0.5s;pointer-events:none}
-.drop-card:hover .depth-shadow{opacity:0.6}
-
-/* ─── Sketchfab Embeds in Drop Grid ─── */
-.drop-card-3d{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color 0.4s,box-shadow 0.4s;position:relative}
-.drop-card-3d:hover{border-color:rgba(255,59,48,0.25);box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 40px rgba(255,59,48,0.08)}
-.drop-card-3d iframe{width:100%;aspect-ratio:1/1;border:none;display:block}
-.drop-card-3d .drop-card-body{padding:1.2rem 1.5rem}
-.drop-card-3d .tag-3d{position:absolute;top:0.8rem;left:0.8rem;font-size:0.55rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:0.3rem 0.7rem;border-radius:6px;background:rgba(255,59,48,0.9);color:#fff;z-index:2;backdrop-filter:blur(8px)}
-
-/* ─── Scrollbar ─── */
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:var(--dark)}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.15)}
+/* ─── Magnetic button ─── */
+.magnetic{transition:transform 0.2s ease-out}
 </style>
 </head>
 <body>
 
-<!-- Nav -->
+<!-- ═══ Nav ═══ -->
 <nav class="nav" id="nav">
   <a href="#" class="nav-logo">Sole<span>Radar</span></a>
-  <div class="nav-links" id="navLinks">
+  <div class="nav-center" id="navLinks">
     <a href="#drops" onclick="closeNav()">Drops</a>
     <a href="#intel" onclick="closeNav()">Intel</a>
     <a href="#guides" onclick="closeNav()">Guides</a>
     <a href="#products" onclick="closeNav()">Shop</a>
   </div>
-  <div style="display:flex;gap:1rem;align-items:center">
-    <a href="#newsletter" class="btn btn-red" style="font-size:0.62rem;padding:0.6rem 1.4rem">Get Drop Alerts</a>
-    <div class="nav-mob" onclick="document.getElementById('navLinks').classList.toggle('open')"><span></span><span></span><span></span></div>
+  <div class="nav-right">
+    <a href="#newsletter" class="btn btn-red magnetic" style="font-size:0.55rem;padding:0.6rem 1.4rem">Get Drop Alerts</a>
+    <div class="nav-mob" id="navMob"><span></span><span></span><span></span></div>
   </div>
 </nav>
 
-<!-- Hero with 3D Sneaker -->
-<section class="hero">
-  <canvas id="heroCanvas"></canvas>
-  <div class="hero-overlay"></div>
+<!-- ═══ Hero ═══ -->
+<section class="hero" id="hero">
+  <div class="hero-grain"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow-2"></div>
   <div class="hero-inner">
     <div class="hero-content">
-      <div class="hero-badge fade-up"><span class="live"></span> Live — 12 drops this week</div>
+      <div class="hero-badge fade-up"><span class="live-dot"></span> Live — 12 drops this week</div>
       <h1 class="fade-up fd1">Never miss<br>a <em>drop</em> again.</h1>
-      <p class="fade-up fd2">Release calendars, resale predictions, legit-check guides, and the intelligence serious collectors use to cop and flip. Updated daily.</p>
+      <p class="hero-sub fade-up fd2">Release calendars, resale predictions, legit-check guides, and the intelligence serious collectors use to cop and flip. Updated daily.</p>
       <div class="hero-ctas fade-up fd3">
-        <a href="#drops" class="btn btn-red">This Week's Drops</a>
-        <a href="#newsletter" class="btn btn-outline">Get Alerts Free</a>
+        <a href="#drops" class="btn btn-red magnetic">This Week's Drops</a>
+        <a href="#newsletter" class="btn btn-outline magnetic">Get Alerts Free</a>
       </div>
       <div class="hero-stats fade-up fd4">
-        <div><div class="hero-stat-val">3,841</div><div class="hero-stat-label">Drops Tracked</div></div>
-        <div><div class="hero-stat-val">127%</div><div class="hero-stat-label">Avg ROI (2025)</div></div>
-        <div><div class="hero-stat-val">50K+</div><div class="hero-stat-label">Collectors</div></div>
+        <div>
+          <div class="hero-stat-val" data-count="3841">0</div>
+          <div class="hero-stat-label">Drops Tracked</div>
+        </div>
+        <div>
+          <div class="hero-stat-val" data-count="127" data-suffix="%">0%</div>
+          <div class="hero-stat-label">Avg ROI (2025)</div>
+        </div>
+        <div>
+          <div class="hero-stat-val" data-count="50" data-suffix="K+">0K+</div>
+          <div class="hero-stat-label">Collectors</div>
+        </div>
       </div>
     </div>
-    <div class="hero-3d fade-up fd2">
-      <iframe title="3D Sneaker" src="https://sketchfab.com/models/fd462c530d974f33a523d88a7562f1cf/embed?autostart=1&autospin=0.3&ui_infos=0&ui_watermark=0&ui_help=0&ui_settings=0&ui_inspector=0&ui_annotations=0&ui_stop=0&ui_vr=0&preload=1&transparent=1&ui_hint=0&ui_ar=0&ui_fullscreen=0" allow="autoplay; fullscreen; xr-spatial-tracking" loading="lazy"></iframe>
-      <div class="hero-3d-glow"></div>
+    <div class="hero-sneaker-wrap fade-up fd2">
+      <div class="hero-sneaker" id="heroSneaker">
+        <img src="https://images.unsplash.com/photo-1597045566677-8cf032ed6634?w=900&h=900&fit=crop" alt="Air Jordan 1 Chicago" loading="eager">
+        <div class="hero-sneaker-shadow" id="heroShadow"></div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- Resale Intel -->
+<!-- ═══ Market Intel ═══ -->
 <section class="intel" id="intel">
   <div class="intel-inner">
     <div class="section-tag fade-up">Market Intel</div>
     <div class="section-title fade-up fd1">Resale pulse — live.</div>
     <div class="section-sub fade-up fd2">Real-time market data across every major platform.</div>
     <div class="intel-grid">
-      <div class="intel-card fade-up"><div class="intel-val green">+18%</div><div class="intel-label">Jordan Retro Index (7d)</div></div>
-      <div class="intel-card fade-up fd1"><div class="intel-val orange">$247</div><div class="intel-label">Avg Resale Premium</div></div>
-      <div class="intel-card fade-up fd2"><div class="intel-val white">3,841</div><div class="intel-label">Drops Tracked This Year</div></div>
-      <div class="intel-card fade-up fd3"><div class="intel-val red">-6%</div><div class="intel-label">Yeezy Index (7d)</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- 4D Sneaker Viewer -->
-<section class="viewer-section" id="viewer">
-  <div class="viewer-inner">
-    <div class="viewer-canvas-wrap fade-up">
-      <iframe title="4D Sneaker Viewer" src="https://sketchfab.com/models/aa8f4df525724355ac7567331b772d37/embed?autostart=1&autospin=0.2&ui_infos=0&ui_watermark=0&ui_help=0&ui_settings=0&ui_inspector=0&ui_annotations=0&ui_stop=0&ui_vr=0&preload=1&transparent=1&ui_hint=2&ui_ar=0&ui_fullscreen=0&camera=0" allow="autoplay; fullscreen; xr-spatial-tracking" loading="lazy"></iframe>
-      <div class="viewer-hud">
-        <span><span class="dot"></span> 4D Interactive</span>
-        <span>Drag · Zoom · Spin</span>
+      <div class="intel-card fade-up">
+        <div class="intel-val green" data-count="18" data-prefix="+" data-suffix="%">+0%</div>
+        <div class="intel-label">Jordan Retro Index (7d)</div>
       </div>
-    </div>
-    <div class="viewer-info">
-      <div class="section-tag fade-up">4D Experience</div>
-      <div class="section-title fade-up fd1">See every angle.</div>
-      <div class="section-sub fade-up fd2">Interactive 3D sneaker inspection. Rotate, zoom, and explore every detail before you cop.</div>
-      <div class="viewer-features">
-        <div class="viewer-feat fade-up fd1">
-          <div class="viewer-feat-icon">🔄</div>
-          <div class="viewer-feat-text">
-            <h4>360° Rotation</h4>
-            <p>Drag to spin the model. See the shoe from every possible angle.</p>
-          </div>
-        </div>
-        <div class="viewer-feat fade-up fd2">
-          <div class="viewer-feat-icon">🔍</div>
-          <div class="viewer-feat-text">
-            <h4>Zoom & Inspect</h4>
-            <p>Scroll to zoom in on stitching, materials, and construction details.</p>
-          </div>
-        </div>
-        <div class="viewer-feat fade-up fd3">
-          <div class="viewer-feat-icon">✨</div>
-          <div class="viewer-feat-text">
-            <h4>Holographic Display</h4>
-            <p>X-ray wireframe view reveals the internal structure and build quality.</p>
-          </div>
-        </div>
+      <div class="intel-card fade-up fd1">
+        <div class="intel-val orange" data-prefix="$" data-count="247">$0</div>
+        <div class="intel-label">Avg Resale Premium</div>
+      </div>
+      <div class="intel-card fade-up fd2">
+        <div class="intel-val white" data-count="3841" data-comma="true">0</div>
+        <div class="intel-label">Drops Tracked This Year</div>
+      </div>
+      <div class="intel-card fade-up fd3">
+        <div class="intel-val red" data-count="6" data-prefix="-" data-suffix="%">-0%</div>
+        <div class="intel-label">Yeezy Index (7d)</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Upcoming Drops -->
+<!-- ═══ Drops ═══ -->
 <section class="section" id="drops">
-  <div class="section-tag fade-up">Release Calendar</div>
-  <div class="section-title fade-up fd1">Upcoming drops.</div>
-  <div class="section-sub fade-up fd2">Every confirmed release with retail price, resale prediction, and direct cop links.</div>
-  <div class="drops-grid" id="dropsGrid">
-    <!-- 3D Interactive Drop Cards (Sketchfab embeds) -->
-    <div class="drop-card-3d fade-up">
-      <div class="tag-3d">4D View</div>
-      <iframe title="Air Jordan 4D" src="https://sketchfab.com/models/c2b1acf77e564d989e71a9c9da19db85/embed?autostart=1&autospin=0.25&ui_infos=0&ui_watermark=0&ui_help=0&ui_settings=0&ui_inspector=0&ui_annotations=0&ui_stop=0&ui_vr=0&preload=1&transparent=1&ui_hint=0&ui_ar=0&ui_fullscreen=0" allow="autoplay; fullscreen; xr-spatial-tracking" loading="lazy"></iframe>
-      <div class="drop-card-body">
-        <div class="drop-brand">Jordan</div>
-        <div class="drop-name">Air Jordan — Interactive 3D</div>
-        <div class="drop-meta"><span class="drop-date">Drag to spin</span><span class="drop-retail">$210</span></div>
-        <div class="drop-resale">Resale premium: <span class="up">+$185 ↑</span></div>
-      </div>
-    </div>
-    <div class="drop-card-3d fade-up fd1">
-      <div class="tag-3d">4D View</div>
-      <iframe title="Air Jordan 1 4D" src="https://sketchfab.com/models/a4b434181fbb48008ad460722fd53725/embed?autostart=1&autospin=0.25&ui_infos=0&ui_watermark=0&ui_help=0&ui_settings=0&ui_inspector=0&ui_annotations=0&ui_stop=0&ui_vr=0&preload=1&transparent=1&ui_hint=0&ui_ar=0&ui_fullscreen=0" allow="autoplay; fullscreen; xr-spatial-tracking" loading="lazy"></iframe>
-      <div class="drop-card-body">
-        <div class="drop-brand">Jordan</div>
-        <div class="drop-name">Air Jordan 1 — Interactive 3D</div>
-        <div class="drop-meta"><span class="drop-date">Drag to spin</span><span class="drop-retail">$180</span></div>
-        <div class="drop-resale">Resale premium: <span class="up">+$320 ↑</span></div>
-      </div>
+  <div class="section-header">
+    <div>
+      <div class="section-tag fade-up">Release Calendar</div>
+      <div class="section-title fade-up fd1">Upcoming drops.</div>
+      <div class="section-sub fade-up fd2">Every confirmed release with retail price, resale prediction, and direct cop links.</div>
     </div>
   </div>
+  <div class="drops-grid" id="dropsGrid"></div>
 </section>
 
-<!-- Guides -->
+<!-- ═══ Guides ═══ -->
 <section class="section" id="guides" style="border-top:1px solid var(--border)">
-  <div class="section-tag fade-up">Knowledge</div>
-  <div class="section-title fade-up fd1">Level up your game.</div>
-  <div class="section-sub fade-up fd2">Everything from copping manually to spotting fakes to building a resale operation.</div>
+  <div class="section-header">
+    <div>
+      <div class="section-tag fade-up">Knowledge</div>
+      <div class="section-title fade-up fd1">Level up your game.</div>
+      <div class="section-sub fade-up fd2">Everything from copping manually to spotting fakes to building a resale operation.</div>
+    </div>
+  </div>
   <div class="guide-grid" id="guideGrid"></div>
 </section>
 
-<!-- Digital Products -->
+<!-- ═══ Digital Products ═══ -->
 <section class="section" id="products" style="border-top:1px solid var(--border)">
-  <div class="section-tag fade-up">Tools & Guides</div>
-  <div class="section-title fade-up fd1">Gear up.</div>
-  <div class="section-sub fade-up fd2">Digital products for serious collectors and resellers.</div>
+  <div class="section-header">
+    <div>
+      <div class="section-tag fade-up">Tools & Guides</div>
+      <div class="section-title fade-up fd1">Gear up.</div>
+      <div class="section-sub fade-up fd2">Digital products for serious collectors and resellers.</div>
+    </div>
+  </div>
   <div class="prod-grid" id="prodGrid"></div>
 </section>
 
-<!-- Newsletter -->
+<!-- ═══ Newsletter ═══ -->
 <section class="newsletter" id="newsletter">
   <h2>Drop alerts. Resale intel. Weekly.</h2>
   <p>Free tier: release calendar + top picks. Paid tier: early alerts, resale predictions, cop strategies.</p>
@@ -369,16 +354,42 @@ button{cursor:pointer;font-family:var(--font);border:none;background:none;color:
   </div>
 </section>
 
-<!-- Footer -->
+<!-- ═══ Footer ═══ -->
 <footer class="footer">
   <div class="footer-inner">
     <div>
       <div class="footer-logo">Sole<span>Radar</span></div>
       <div class="footer-desc">Independent sneaker intelligence. Release dates, resale data, and the guides that give collectors an edge. Not affiliated with any brand.</div>
     </div>
-    <div><h4>Drops</h4><ul><li><a href="#drops">This Week</a></li><li><a href="#drops">Jordan</a></li><li><a href="#drops">Nike</a></li><li><a href="#drops">Adidas</a></li><li><a href="#drops">New Balance</a></li></ul></div>
-    <div><h4>Guides</h4><ul><li><a href="#guides">Legit Check</a></li><li><a href="#guides">Resale Strategy</a></li><li><a href="#guides">Copping Tips</a></li><li><a href="#guides">Care Guides</a></li></ul></div>
-    <div><h4>Connect</h4><ul><li><a href="#">Instagram</a></li><li><a href="#">TikTok</a></li><li><a href="#">Twitter / X</a></li><li><a href="#">Discord</a></li><li><a href="mailto:hello@soleradar.com">Email</a></li></ul></div>
+    <div>
+      <h4>Drops</h4>
+      <ul>
+        <li><a href="#drops">This Week</a></li>
+        <li><a href="#drops">Jordan</a></li>
+        <li><a href="#drops">Nike</a></li>
+        <li><a href="#drops">Adidas</a></li>
+        <li><a href="#drops">New Balance</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Guides</h4>
+      <ul>
+        <li><a href="#guides">Legit Check</a></li>
+        <li><a href="#guides">Resale Strategy</a></li>
+        <li><a href="#guides">Copping Tips</a></li>
+        <li><a href="#guides">Care Guides</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Connect</h4>
+      <ul>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">TikTok</a></li>
+        <li><a href="#">Twitter / X</a></li>
+        <li><a href="#">Discord</a></li>
+        <li><a href="mailto:hello@soleradar.com">Email</a></li>
+      </ul>
+    </div>
   </div>
   <div class="footer-bottom">&copy; 2026 Sole Radar. All rights reserved. Prices and dates are estimates and may change. We earn commissions from qualifying purchases.</div>
 </footer>
@@ -386,101 +397,27 @@ button{cursor:pointer;font-family:var(--font);border:none;background:none;color:
 <div class="toast" id="toast"></div>
 
 <script>
-/* ═══════════════════════════════════════════════════════════════════
-   THREE.JS — HERO: Ambient Particle Field (background atmosphere)
-   ═══════════════════════════════════════════════════════════════════ */
-(function(){
-  const canvas = document.getElementById('heroCanvas');
-  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
-  camera.position.z = 30;
-
-  const particleCount = 1200;
-  const positions = new Float32Array(particleCount*3);
-  const colors = new Float32Array(particleCount*3);
-  const speeds = new Float32Array(particleCount);
-  for(let i=0;i<particleCount;i++){
-    positions[i*3]=(Math.random()-0.5)*80;positions[i*3+1]=(Math.random()-0.5)*60;positions[i*3+2]=(Math.random()-0.5)*40;
-    const isRed=Math.random()<0.1;
-    colors[i*3]=isRed?1:0.4;colors[i*3+1]=isRed?0.23:0.4;colors[i*3+2]=isRed?0.19:0.4;
-    speeds[i]=Math.random()*0.5+0.2;
-  }
-  const pGeo=new THREE.BufferGeometry();
-  pGeo.setAttribute('position',new THREE.BufferAttribute(positions,3));
-  pGeo.setAttribute('color',new THREE.BufferAttribute(colors,3));
-  const pMat=new THREE.PointsMaterial({size:0.08,vertexColors:true,transparent:true,opacity:0.4,blending:THREE.AdditiveBlending,sizeAttenuation:true});
-  const particles=new THREE.Points(pGeo,pMat);
-  scene.add(particles);
-
-  let mouseX=0,mouseY=0;
-  document.addEventListener('mousemove',e=>{mouseX=(e.clientX/window.innerWidth-0.5)*2;mouseY=(e.clientY/window.innerHeight-0.5)*2});
-
-  let time=0;
-  function animate(){
-    requestAnimationFrame(animate);
-    time+=0.004;
-    const pos=pGeo.attributes.position.array;
-    for(let i=0;i<particleCount;i++){pos[i*3+1]+=Math.sin(time*speeds[i]+i)*0.0015;pos[i*3]+=Math.cos(time*speeds[i]*0.7+i)*0.001}
-    pGeo.attributes.position.needsUpdate=true;
-    particles.rotation.y=time*0.03+mouseX*0.06;
-    particles.rotation.x=mouseY*0.03;
-    camera.position.x+=(mouseX*2-camera.position.x)*0.015;
-    camera.position.y+=(-mouseY*1.5-camera.position.y)*0.015;
-    camera.lookAt(scene.position);
-    renderer.render(scene,camera);
-  }
-  animate();
-  window.addEventListener('resize',()=>{camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight)});
-})();
-
-/* ═══════════════════════════════════════════════════════════════════
-   PARALLAX DEPTH — Drop card images float in 3D on mouse move
-   ═══════════════════════════════════════════════════════════════════ */
-function initParallaxCards(){
-  document.querySelectorAll('.drop-card').forEach(card=>{
-    const img = card.querySelector('.drop-card-img img');
-    const shadow = card.querySelector('.depth-shadow');
-    if(!img) return;
-    card.addEventListener('mousemove', e=>{
-      const rect = card.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
-      // Image floats in 3D space
-      img.style.transform = `perspective(600px) rotateY(${x*12}deg) rotateX(${-y*8}deg) translateZ(20px) scale(1.05)`;
-      if(shadow) shadow.style.transform = `translateX(${x*10}px) scaleX(${1-Math.abs(x)*0.3})`;
-    });
-    card.addEventListener('mouseleave', ()=>{
-      img.style.transform = 'perspective(600px) rotateY(0) rotateX(0) translateZ(0) scale(1)';
-      if(shadow) shadow.style.transform = 'translateX(0) scaleX(1)';
-    });
-  });
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   DATA — Real sneaker images from Unsplash
-   ═══════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   DATA
+   ═══════════════════════════════════════════════════════════════ */
 const drops = [
-  {brand:'Jordan',name:'Air Jordan 4 Retro "Bred Reimagined"',date:'Mar 22, 2026',retail:'$210',resale:'+$185',trend:'up',status:'soon',img:'https://images.unsplash.com/photo-1600269452121-4f2416e55c28?w=500&h=500&fit=crop'},
-  {brand:'Nike',name:'Nike Dunk Low "Panda" 2026 Restock',date:'Mar 24, 2026',retail:'$115',resale:'+$40',trend:'down',status:'live',img:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop'},
-  {brand:'New Balance',name:'New Balance 990v6 "Grey Day"',date:'Mar 27, 2026',retail:'$199',resale:'+$120',trend:'up',status:'upcoming',img:'https://images.unsplash.com/photo-1539185441755-769473a23570?w=500&h=500&fit=crop'},
-  {brand:'Nike',name:'Nike Air Max 1 "Chlorophyll" OG',date:'Mar 26, 2026',retail:'$150',resale:'+$95',trend:'up',status:'soon',img:'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=500&h=500&fit=crop'},
-  {brand:'Adidas',name:'Adidas Samba OG "Core Black"',date:'Mar 23, 2026',retail:'$100',resale:'+$55',trend:'up',status:'live',img:'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=500&h=500&fit=crop'},
-  {brand:'Jordan',name:'Air Jordan 1 High OG "Chicago"',date:'Apr 2, 2026',retail:'$180',resale:'+$320',trend:'up',status:'upcoming',img:'https://images.unsplash.com/photo-1597045566677-8cf032ed6634?w=500&h=500&fit=crop'},
-  {brand:'Nike',name:'Nike SB Dunk Low "Paris" F&F',date:'Apr 5, 2026',retail:'$120',resale:'+$580',trend:'up',status:'upcoming',img:'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=500&h=500&fit=crop'},
-  {brand:'Asics',name:'ASICS Gel-Kayano 14 "Silver"',date:'Mar 29, 2026',retail:'$140',resale:'+$70',trend:'up',status:'soon',img:'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=500&h=500&fit=crop'},
+  {brand:'Jordan',name:'Air Jordan 4 Retro "Bred Reimagined"',date:'Mar 22, 2026',retail:'$210',resale:'+$185',trend:'up',status:'soon',img:'https://images.unsplash.com/photo-1600269452121-4f2416e55c28?w=600&h=600&fit=crop'},
+  {brand:'Nike',name:'Nike Dunk Low "Panda" 2026 Restock',date:'Mar 24, 2026',retail:'$115',resale:'+$40',trend:'down',status:'live',img:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=600&fit=crop'},
+  {brand:'New Balance',name:'New Balance 990v6 "Grey Day"',date:'Mar 27, 2026',retail:'$199',resale:'+$120',trend:'up',status:'upcoming',img:'https://images.unsplash.com/photo-1539185441755-769473a23570?w=600&h=600&fit=crop'},
+  {brand:'Nike',name:'Nike Air Max 1 "Chlorophyll" OG',date:'Mar 26, 2026',retail:'$150',resale:'+$95',trend:'up',status:'soon',img:'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&h=600&fit=crop'},
+  {brand:'Adidas',name:'Adidas Samba OG "Core Black"',date:'Mar 23, 2026',retail:'$100',resale:'+$55',trend:'up',status:'live',img:'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&h=600&fit=crop'},
+  {brand:'Jordan',name:'Air Jordan 1 High OG "Chicago"',date:'Apr 2, 2026',retail:'$180',resale:'+$320',trend:'up',status:'upcoming',img:'https://images.unsplash.com/photo-1597045566677-8cf032ed6634?w=600&h=600&fit=crop'},
+  {brand:'Nike',name:'Nike SB Dunk Low "Paris" F&F',date:'Apr 5, 2026',retail:'$120',resale:'+$580',trend:'up',status:'upcoming',img:'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&h=600&fit=crop'},
+  {brand:'Asics',name:'ASICS Gel-Kayano 14 "Silver"',date:'Mar 29, 2026',retail:'$140',resale:'+$70',trend:'up',status:'soon',img:'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=600&h=600&fit=crop'},
 ];
 
 const guides = [
-  {cat:'Legit Check',title:'How to Spot Fake Jordans: The 2026 Complete Guide',desc:'Box labels, stitching patterns, sole texture, and the one detail fakers still can\'t get right.',img:'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=600&h=380&fit=crop'},
-  {cat:'Resale Strategy',title:'Sneaker Resale for Beginners: First Flip to \u00a31K/Month',desc:'Which platforms to use, pricing psychology, when to hold vs sell, and the spreadsheet that tracks your profit.',img:'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=600&h=380&fit=crop'},
-  {cat:'Copping',title:'Manual Cop Strategies That Actually Work in 2026',desc:'No bots needed. Browser settings, account prep, checkout speed techniques, and the SNKRS tricks.',img:'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&h=380&fit=crop'},
-  {cat:'Storage',title:'Best Sneaker Storage Solutions to Protect Your Collection',desc:'Drop-front boxes, UV protection, humidity control, and display setups that look incredible.',img:'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=600&h=380&fit=crop'},
-  {cat:'Care',title:'How to Clean Any Sneaker Without Ruining It',desc:'Suede, leather, mesh, knit \u2014 different materials need different approaches. Exact products and techniques.',img:'https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=600&h=380&fit=crop'},
-  {cat:'Investment',title:'10 Sneakers That Will Double in Value by 2027',desc:'Based on historical resale data, supply analysis, and cultural relevance. Last year\'s picks averaged +127% return.',img:'https://images.unsplash.com/photo-1587563871167-1ee9c731aefb?w=600&h=380&fit=crop'},
+  {cat:'Legit Check',title:'How to Spot Fake Jordans: The 2026 Complete Guide',desc:'Box labels, stitching patterns, sole texture, and the one detail fakers still can\'t get right.',img:'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=700&h=440&fit=crop'},
+  {cat:'Resale Strategy',title:'Sneaker Resale for Beginners: First Flip to \u00a31K/Month',desc:'Which platforms to use, pricing psychology, when to hold vs sell, and the spreadsheet that tracks your profit.',img:'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=700&h=440&fit=crop'},
+  {cat:'Copping',title:'Manual Cop Strategies That Actually Work in 2026',desc:'No bots needed. Browser settings, account prep, checkout speed techniques, and the SNKRS tricks.',img:'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=700&h=440&fit=crop'},
+  {cat:'Storage',title:'Best Sneaker Storage Solutions to Protect Your Collection',desc:'Drop-front boxes, UV protection, humidity control, and display setups that look incredible.',img:'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=700&h=440&fit=crop'},
+  {cat:'Care',title:'How to Clean Any Sneaker Without Ruining It',desc:'Suede, leather, mesh, knit \u2014 different materials need different approaches. Exact products and techniques.',img:'https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=700&h=440&fit=crop'},
+  {cat:'Investment',title:'10 Sneakers That Will Double in Value by 2027',desc:'Based on historical resale data, supply analysis, and cultural relevance. Last year\'s picks averaged +127% return.',img:'https://images.unsplash.com/photo-1587563871167-1ee9c731aefb?w=700&h=440&fit=crop'},
 ];
 
 const products = [
@@ -492,23 +429,25 @@ const products = [
   {icon:'\ud83e\uddf9',title:'Ultimate Sneaker Care Guide',price:'$12',tag:'Essential',desc:'Cleaning, storage, restoration, sole swaps, and yellowing prevention for every material.'},
 ];
 
-/* ═══════════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════
    RENDER
-   ═══════════════════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════════ */
 document.getElementById('dropsGrid').innerHTML = drops.map((d,i) => `
   <div class="drop-card fade-up" style="transition-delay:${i*0.06}s">
-    <div class="drop-card-inner">
-      <div class="drop-status ${d.status}">${d.status==='live'?'\ud83d\udd34 Live Now':d.status==='soon'?'This Week':'Upcoming'}</div>
-      <div class="drop-card-img"><img src="${d.img}" alt="${d.name}" loading="lazy"><div class="depth-shadow"></div><div class="shoe-reflection"></div></div>
-      <div class="drop-card-body">
-        <div class="drop-brand">${d.brand}</div>
-        <div class="drop-name">${d.name}</div>
-        <div class="drop-meta">
-          <span class="drop-date">${d.date}</span>
-          <span class="drop-retail">${d.retail}</span>
-        </div>
-        <div class="drop-resale">Resale premium: <span class="${d.trend==='up'?'up':'down'}">${d.resale} ${d.trend==='up'?'\u2191':'\u2193'}</span></div>
+    <div class="drop-status ${d.status}">${d.status==='live'?'\ud83d\udd34 Live Now':d.status==='soon'?'This Week':'Upcoming'}</div>
+    <div class="drop-card-img">
+      <img src="${d.img}" alt="${d.name}" loading="lazy">
+      <div class="depth-shadow"></div>
+      <div class="shoe-glow"></div>
+    </div>
+    <div class="drop-card-body">
+      <div class="drop-brand">${d.brand}</div>
+      <div class="drop-name">${d.name}</div>
+      <div class="drop-meta">
+        <span class="drop-date">${d.date}</span>
+        <span class="drop-retail">${d.retail}</span>
       </div>
+      <div class="drop-resale">Resale premium: <span class="${d.trend==='up'?'up':'down'}">${d.resale} ${d.trend==='up'?'\u2191':'\u2193'}</span></div>
     </div>
   </div>
 `).join('');
@@ -532,32 +471,177 @@ document.getElementById('prodGrid').innerHTML = products.map((p,i) => `
     <div class="prod-desc">${p.desc}</div>
     <div class="prod-bottom">
       <div class="prod-price">${p.price}</div>
-      <button class="btn btn-red" style="font-size:0.62rem;padding:0.55rem 1.2rem" onclick="showToast('Added \u2014 ${p.title}')">Buy Now</button>
+      <button class="btn btn-red magnetic" style="font-size:0.55rem;padding:0.55rem 1.2rem" onclick="showToast('Added \u2014 ${p.title}')">Buy Now</button>
     </div>
   </div>
 `).join('');
 
-/* ═══════════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════
+   HERO PARALLAX — Sneaker follows mouse with perspective
+   ═══════════════════════════════════════════════════════════════ */
+(function(){
+  const heroEl = document.getElementById('hero');
+  const sneaker = document.getElementById('heroSneaker');
+  const shadow = document.getElementById('heroShadow');
+  if(!heroEl || !sneaker) return;
+
+  heroEl.addEventListener('mousemove', function(e){
+    const rect = heroEl.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    const rotY = x * 18;
+    const rotX = -y * 12;
+    sneaker.style.transform = `perspective(1200px) rotateY(${rotY}deg) rotateX(${rotX}deg) translateZ(20px)`;
+    if(shadow){
+      shadow.style.transform = `translateX(${x * 30}px) scaleX(${1 - Math.abs(x) * 0.2})`;
+    }
+  });
+
+  heroEl.addEventListener('mouseleave', function(){
+    sneaker.style.transform = 'perspective(1200px) rotateY(0deg) rotateX(0deg) translateZ(0px)';
+    if(shadow) shadow.style.transform = 'translateX(0px) scaleX(1)';
+  });
+})();
+
+/* ═══════════════════════════════════════════════════════════════
+   DROP CARD DEPTH — Shoe image lifts off card on hover
+   ═══════════════════════════════════════════════════════════════ */
+function initParallaxCards(){
+  document.querySelectorAll('.drop-card').forEach(function(card){
+    var imgEl = card.querySelector('.drop-card-img img');
+    var shadowEl = card.querySelector('.depth-shadow');
+    if(!imgEl) return;
+
+    card.addEventListener('mousemove', function(e){
+      var rect = card.getBoundingClientRect();
+      var x = (e.clientX - rect.left) / rect.width - 0.5;
+      var y = (e.clientY - rect.top) / rect.height - 0.5;
+      imgEl.style.transform = 'perspective(800px) rotateY(' + (x * 10) + 'deg) rotateX(' + (-y * 8) + 'deg) translateZ(25px) scale(1.06)';
+      if(shadowEl){
+        shadowEl.style.transform = 'translateX(' + (x * 15) + 'px) scaleX(' + (1 - Math.abs(x) * 0.25) + ')';
+      }
+    });
+
+    card.addEventListener('mouseleave', function(){
+      imgEl.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg) translateZ(0px) scale(1)';
+      if(shadowEl) shadowEl.style.transform = 'translateX(0px) scaleX(1)';
+    });
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   COUNTER ANIMATION — Numbers count up when scrolled into view
+   ═══════════════════════════════════════════════════════════════ */
+function animateCounter(el){
+  var target = parseInt(el.getAttribute('data-count'));
+  var prefix = el.getAttribute('data-prefix') || '';
+  var suffix = el.getAttribute('data-suffix') || '';
+  var useComma = el.getAttribute('data-comma') === 'true';
+  var duration = 2000;
+  var start = 0;
+  var startTime = null;
+
+  function step(timestamp){
+    if(!startTime) startTime = timestamp;
+    var progress = Math.min((timestamp - startTime) / duration, 1);
+    var eased = 1 - Math.pow(1 - progress, 3);
+    var current = Math.floor(eased * target);
+    var display = useComma ? current.toLocaleString() : current;
+    el.textContent = prefix + display + suffix;
+    if(progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MAGNETIC BUTTONS — Subtle follow on mouse proximity
+   ═══════════════════════════════════════════════════════════════ */
+function initMagneticButtons(){
+  document.querySelectorAll('.magnetic').forEach(function(btn){
+    btn.addEventListener('mousemove', function(e){
+      var rect = btn.getBoundingClientRect();
+      var x = e.clientX - rect.left - rect.width / 2;
+      var y = e.clientY - rect.top - rect.height / 2;
+      btn.style.transform = 'translate(' + (x * 0.15) + 'px, ' + (y * 0.15) + 'px)';
+    });
+    btn.addEventListener('mouseleave', function(){
+      btn.style.transform = 'translate(0px, 0px)';
+    });
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
    UTILS
-   ═══════════════════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════════ */
 function closeNav(){document.getElementById('navLinks').classList.remove('open')}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2500)}
 function subscribe(){
-  const email=document.getElementById('nlEmail').value;
+  var email=document.getElementById('nlEmail').value;
   if(!email||!email.includes('@')){showToast('Please enter a valid email.');return}
   showToast("You're in. First drop alert coming soon.");
   document.getElementById('nlEmail').value='';
 }
 
-// Nav scroll
-window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',window.scrollY>50)});
+// Mobile nav toggle
+document.getElementById('navMob').addEventListener('click', function(){
+  document.getElementById('navLinks').classList.toggle('open');
+});
 
-// Intersection observer for fade-in
-const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target)}})},{threshold:0.08,rootMargin:'0px 0px -40px 0px'});
-document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+// Nav scroll effect
+window.addEventListener('scroll', function(){
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 50);
+});
 
-// Init parallax depth on drop cards after render
-setTimeout(()=>initParallaxCards(),100);
+// Intersection observer — fade-in + counter trigger
+var counterAnimated = new Set();
+var obs = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){
+      e.target.classList.add('vis');
+      // Check for counter elements within
+      var counters = e.target.querySelectorAll('[data-count]');
+      counters.forEach(function(c){
+        if(!counterAnimated.has(c)){
+          counterAnimated.add(c);
+          animateCounter(c);
+        }
+      });
+      // Also check if the element itself is a counter
+      if(e.target.hasAttribute('data-count') && !counterAnimated.has(e.target)){
+        counterAnimated.add(e.target);
+        animateCounter(e.target);
+      }
+      obs.unobserve(e.target);
+    }
+  });
+}, {threshold:0.08, rootMargin:'0px 0px -40px 0px'});
+
+document.querySelectorAll('.fade-up').forEach(function(el){obs.observe(el)});
+
+// Also observe stat containers that contain counters
+document.querySelectorAll('.hero-stats, .intel-card').forEach(function(el){
+  var counterObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        var counters = e.target.querySelectorAll('[data-count]');
+        counters.forEach(function(c){
+          if(!counterAnimated.has(c)){
+            counterAnimated.add(c);
+            animateCounter(c);
+          }
+        });
+        counterObs.unobserve(e.target);
+      }
+    });
+  }, {threshold:0.3});
+  counterObs.observe(el);
+});
+
+// Init all interactive effects after DOM render
+setTimeout(function(){
+  initParallaxCards();
+  initMagneticButtons();
+}, 100);
 </script>
 </body>
 </html>
