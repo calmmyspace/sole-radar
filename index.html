@@ -49,7 +49,13 @@ button{cursor:pointer;font-family:var(--font);border:none;background:none;color:
 .hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding:6rem 2rem}
 #heroCanvas{position:absolute;inset:0;z-index:0}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(6,6,8,0.85) 0%,rgba(6,6,8,0.4) 50%,rgba(255,59,48,0.04) 100%);z-index:1}
-.hero-content{position:relative;z-index:2;max-width:700px}
+.hero-inner{position:relative;z-index:2;max-width:1200px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+.hero-content{max-width:600px}
+.hero-3d{position:relative;aspect-ratio:1/1;max-width:500px;justify-self:end}
+.hero-3d iframe{width:100%;height:100%;border:none;border-radius:20px}
+.hero-3d::after{content:'';position:absolute;inset:-1px;border-radius:20px;border:1px solid rgba(255,59,48,0.12);pointer-events:none}
+.hero-3d .hero-3d-glow{position:absolute;bottom:-20%;left:10%;right:10%;height:40%;background:radial-gradient(ellipse,rgba(255,59,48,0.1),transparent 70%);filter:blur(30px);pointer-events:none}
+@media(max-width:900px){.hero-inner{grid-template-columns:1fr}.hero-3d{max-width:100%;margin-top:2rem}}
 .hero-badge{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,59,48,0.08);border:1px solid rgba(255,59,48,0.2);color:var(--red);font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;padding:0.5rem 1.2rem;border-radius:50px;margin-bottom:1.5rem;backdrop-filter:blur(10px)}
 .hero-badge .live{width:6px;height:6px;background:var(--red);border-radius:50%;animation:pulse 1.5s ease infinite;box-shadow:0 0 8px var(--red)}
 .hero h1{font-family:var(--display);font-size:clamp(3rem,8vw,5.8rem);font-weight:700;line-height:1.02;color:var(--white);margin-bottom:1.2rem;letter-spacing:-0.04em}
@@ -160,6 +166,41 @@ button{cursor:pointer;font-family:var(--font);border:none;background:none;color:
 .toast{position:fixed;bottom:2rem;right:2rem;background:var(--green);color:#000;padding:1rem 2rem;font-size:0.85rem;font-weight:600;border-radius:10px;z-index:400;transform:translateY(100px);opacity:0;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);pointer-events:none;box-shadow:0 8px 30px rgba(48,209,88,0.3)}
 .toast.show{transform:translateY(0);opacity:1}
 
+/* ─── 4D Viewer Section ─── */
+.viewer-section{padding:7rem 2rem;background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.viewer-section::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(255,59,48,0.06) 0%,transparent 70%);pointer-events:none}
+.viewer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+.viewer-canvas-wrap{position:relative;aspect-ratio:1/1;max-width:550px;border-radius:20px;overflow:hidden;background:radial-gradient(circle at 50% 50%,rgba(255,59,48,0.03),transparent 70%);border:1px solid var(--border)}
+.viewer-canvas-wrap iframe{width:100%;height:100%;border:none;border-radius:20px}
+.viewer-hud{position:absolute;top:1rem;left:1rem;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--red);font-weight:700;display:flex;flex-direction:column;gap:0.3rem;pointer-events:none}
+.viewer-hud span{display:flex;align-items:center;gap:0.4rem}
+.viewer-hud .dot{width:4px;height:4px;background:var(--red);border-radius:50%;animation:pulse 2s ease infinite}
+.viewer-hint{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);font-size:0.65rem;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.12em;pointer-events:none;transition:opacity 0.5s}
+.viewer-info{display:flex;flex-direction:column;gap:1.5rem}
+.viewer-info .section-tag{margin-bottom:0}
+.viewer-features{display:flex;flex-direction:column;gap:1rem;margin-top:1rem}
+.viewer-feat{display:flex;gap:1rem;align-items:flex-start}
+.viewer-feat-icon{width:40px;height:40px;border-radius:10px;background:rgba(255,59,48,0.08);border:1px solid rgba(255,59,48,0.15);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.viewer-feat-text h4{font-family:var(--display);font-size:0.9rem;font-weight:700;color:var(--white);margin-bottom:0.2rem}
+.viewer-feat-text p{font-size:0.78rem;line-height:1.6;font-weight:300}
+@media(max-width:768px){.viewer-inner{grid-template-columns:1fr;gap:2rem}.viewer-canvas-wrap{max-width:100%}}
+
+/* ─── Drop Card Parallax Depth ─── */
+.drop-card-img{position:relative;perspective:800px;overflow:visible}
+.drop-card-img img{transform-style:preserve-3d;will-change:transform;transition:transform 0.15s ease-out}
+.drop-card-img .shoe-reflection{position:absolute;bottom:-5%;left:15%;right:15%;height:25%;background:radial-gradient(ellipse,rgba(255,59,48,0.08),transparent 70%);filter:blur(20px);opacity:0;transition:opacity 0.5s;pointer-events:none;z-index:0}
+.drop-card:hover .shoe-reflection{opacity:1}
+/* Parallax depth layers — image floats in 3D on mouse move */
+.drop-card-img .depth-shadow{position:absolute;bottom:5%;left:10%;right:10%;height:15%;background:rgba(0,0,0,0.4);filter:blur(20px);border-radius:50%;opacity:0;transition:opacity 0.5s;pointer-events:none}
+.drop-card:hover .depth-shadow{opacity:0.6}
+
+/* ─── Sketchfab Embeds in Drop Grid ─── */
+.drop-card-3d{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color 0.4s,box-shadow 0.4s;position:relative}
+.drop-card-3d:hover{border-color:rgba(255,59,48,0.25);box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 40px rgba(255,59,48,0.08)}
+.drop-card-3d iframe{width:100%;aspect-ratio:1/1;border:none;display:block}
+.drop-card-3d .drop-card-body{padding:1.2rem 1.5rem}
+.drop-card-3d .tag-3d{position:absolute;top:0.8rem;left:0.8rem;font-size:0.55rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:0.3rem 0.7rem;border-radius:6px;background:rgba(255,59,48,0.9);color:#fff;z-index:2;backdrop-filter:blur(8px)}
+
 /* ─── Scrollbar ─── */
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:var(--dark)}
@@ -184,22 +225,28 @@ button{cursor:pointer;font-family:var(--font);border:none;background:none;color:
   </div>
 </nav>
 
-<!-- Hero with Three.js Canvas -->
+<!-- Hero with 3D Sneaker -->
 <section class="hero">
   <canvas id="heroCanvas"></canvas>
   <div class="hero-overlay"></div>
-  <div class="hero-content">
-    <div class="hero-badge fade-up"><span class="live"></span> Live — 12 drops this week</div>
-    <h1 class="fade-up fd1">Never miss<br>a <em>drop</em> again.</h1>
-    <p class="fade-up fd2">Release calendars, resale predictions, legit-check guides, and the intelligence serious collectors use to cop and flip. Updated daily.</p>
-    <div class="hero-ctas fade-up fd3">
-      <a href="#drops" class="btn btn-red">This Week's Drops</a>
-      <a href="#newsletter" class="btn btn-outline">Get Alerts Free</a>
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge fade-up"><span class="live"></span> Live — 12 drops this week</div>
+      <h1 class="fade-up fd1">Never miss<br>a <em>drop</em> again.</h1>
+      <p class="fade-up fd2">Release calendars, resale predictions, legit-check guides, and the intelligence serious collectors use to cop and flip. Updated daily.</p>
+      <div class="hero-ctas fade-up fd3">
+        <a href="#drops" class="btn btn-red">This Week's Drops</a>
+        <a href="#newsletter" class="btn btn-outline">Get Alerts Free</a>
+      </div>
+      <div class="hero-stats fade-up fd4">
+        <div><div class="hero-stat-val">3,841</div><div class="hero-stat-label">Drops Tracked</div></div>
+        <div><div class="hero-stat-val">127%</div><div class="hero-stat-label">Avg ROI (2025)</div></div>
+        <div><div class="hero-stat-val">50K+</div><div class="hero-stat-label">Collectors</div></div>
+      </div>
     </div>
-    <div class="hero-stats fade-up fd4">
-      <div><div class="hero-stat-val">3,841</div><div class="hero-stat-label">Drops Tracked</div></div>
-      <div><div class="hero-stat-val">127%</div><div class="hero-stat-label">Avg ROI (2025)</div></div>
-      <div><div class="hero-stat-val">50K+</div><div class="hero-stat-label">Collectors</div></div>
+    <div class="hero-3d fade-up fd2">
+      <iframe title="3D Sneaker" src="https://sketchfab.com/models/fd462c530d974f33a523d88a7562f1cf/embed?autostart=1&autospin=0.3&ui_infos=0&ui_watermark=0&ui_help=0&ui_settings=0&ui_inspector=0&ui_annotations=0&ui_stop=0&ui_vr=0&preload=1&transparent=1&ui_hint=0&ui_ar=0&ui_fullscreen=0" allow="autoplay; fullscreen; xr-spatial-tracking" loading="lazy"></iframe>
+      <div class="hero-3d-glow"></div>
     </div>
   </div>
 </section>
@@ -219,12 +266,75 @@ button{cursor:pointer;font-family:var(--font);border:none;background:none;color:
   </div>
 </section>
 
+<!-- 4D Sneaker Viewer -->
+<section class="viewer-section" id="viewer">
+  <div class="viewer-inner">
+    <div class="viewer-canvas-wrap fade-up">
+      <iframe title="4D Sneaker Viewer" src="https://sketchfab.com/models/aa8f4df525724355ac7567331b772d37/embed?autostart=1&autospin=0.2&ui_infos=0&ui_watermark=0&ui_help=0&ui_settings=0&ui_inspector=0&ui_annotations=0&ui_stop=0&ui_vr=0&preload=1&transparent=1&ui_hint=2&ui_ar=0&ui_fullscreen=0&camera=0" allow="autoplay; fullscreen; xr-spatial-tracking" loading="lazy"></iframe>
+      <div class="viewer-hud">
+        <span><span class="dot"></span> 4D Interactive</span>
+        <span>Drag · Zoom · Spin</span>
+      </div>
+    </div>
+    <div class="viewer-info">
+      <div class="section-tag fade-up">4D Experience</div>
+      <div class="section-title fade-up fd1">See every angle.</div>
+      <div class="section-sub fade-up fd2">Interactive 3D sneaker inspection. Rotate, zoom, and explore every detail before you cop.</div>
+      <div class="viewer-features">
+        <div class="viewer-feat fade-up fd1">
+          <div class="viewer-feat-icon">🔄</div>
+          <div class="viewer-feat-text">
+            <h4>360° Rotation</h4>
+            <p>Drag to spin the model. See the shoe from every possible angle.</p>
+          </div>
+        </div>
+        <div class="viewer-feat fade-up fd2">
+          <div class="viewer-feat-icon">🔍</div>
+          <div class="viewer-feat-text">
+            <h4>Zoom & Inspect</h4>
+            <p>Scroll to zoom in on stitching, materials, and construction details.</p>
+          </div>
+        </div>
+        <div class="viewer-feat fade-up fd3">
+          <div class="viewer-feat-icon">✨</div>
+          <div class="viewer-feat-text">
+            <h4>Holographic Display</h4>
+            <p>X-ray wireframe view reveals the internal structure and build quality.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Upcoming Drops -->
 <section class="section" id="drops">
   <div class="section-tag fade-up">Release Calendar</div>
   <div class="section-title fade-up fd1">Upcoming drops.</div>
   <div class="section-sub fade-up fd2">Every confirmed release with retail price, resale prediction, and direct cop links.</div>
-  <div class="drops-grid" id="dropsGrid"></div>
+  <div class="drops-grid" id="dropsGrid">
+    <!-- 3D Interactive Drop Cards (Sketchfab embeds) -->
+    <div class="drop-card-3d fade-up">
+      <div class="tag-3d">4D View</div>
+      <iframe title="Air Jordan 4D" src="https://sketchfab.com/models/c2b1acf77e564d989e71a9c9da19db85/embed?autostart=1&autospin=0.25&ui_infos=0&ui_watermark=0&ui_help=0&ui_settings=0&ui_inspector=0&ui_annotations=0&ui_stop=0&ui_vr=0&preload=1&transparent=1&ui_hint=0&ui_ar=0&ui_fullscreen=0" allow="autoplay; fullscreen; xr-spatial-tracking" loading="lazy"></iframe>
+      <div class="drop-card-body">
+        <div class="drop-brand">Jordan</div>
+        <div class="drop-name">Air Jordan — Interactive 3D</div>
+        <div class="drop-meta"><span class="drop-date">Drag to spin</span><span class="drop-retail">$210</span></div>
+        <div class="drop-resale">Resale premium: <span class="up">+$185 ↑</span></div>
+      </div>
+    </div>
+    <div class="drop-card-3d fade-up fd1">
+      <div class="tag-3d">4D View</div>
+      <iframe title="Air Jordan 1 4D" src="https://sketchfab.com/models/a4b434181fbb48008ad460722fd53725/embed?autostart=1&autospin=0.25&ui_infos=0&ui_watermark=0&ui_help=0&ui_settings=0&ui_inspector=0&ui_annotations=0&ui_stop=0&ui_vr=0&preload=1&transparent=1&ui_hint=0&ui_ar=0&ui_fullscreen=0" allow="autoplay; fullscreen; xr-spatial-tracking" loading="lazy"></iframe>
+      <div class="drop-card-body">
+        <div class="drop-brand">Jordan</div>
+        <div class="drop-name">Air Jordan 1 — Interactive 3D</div>
+        <div class="drop-meta"><span class="drop-date">Drag to spin</span><span class="drop-retail">$180</span></div>
+        <div class="drop-resale">Resale premium: <span class="up">+$320 ↑</span></div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- Guides -->
@@ -277,7 +387,7 @@ button{cursor:pointer;font-family:var(--font);border:none;background:none;color:
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════
-   THREE.JS — 3D Floating Sneaker Particle Field
+   THREE.JS — HERO: Ambient Particle Field (background atmosphere)
    ═══════════════════════════════════════════════════════════════════ */
 (function(){
   const canvas = document.getElementById('heroCanvas');
@@ -289,148 +399,63 @@ button{cursor:pointer;font-family:var(--font);border:none;background:none;color:
   const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
   camera.position.z = 30;
 
-  // Particle system — floating dots like a sneaker radar scan
-  const particleCount = 2000;
-  const positions = new Float32Array(particleCount * 3);
-  const colors = new Float32Array(particleCount * 3);
-  const sizes = new Float32Array(particleCount);
+  const particleCount = 1200;
+  const positions = new Float32Array(particleCount*3);
+  const colors = new Float32Array(particleCount*3);
   const speeds = new Float32Array(particleCount);
-
-  for(let i = 0; i < particleCount; i++){
-    positions[i*3] = (Math.random()-0.5) * 80;
-    positions[i*3+1] = (Math.random()-0.5) * 60;
-    positions[i*3+2] = (Math.random()-0.5) * 40;
-    // Red accent particles mixed with white
-    const isRed = Math.random() < 0.15;
-    colors[i*3] = isRed ? 1.0 : 0.6;
-    colors[i*3+1] = isRed ? 0.23 : 0.6;
-    colors[i*3+2] = isRed ? 0.19 : 0.6;
-    sizes[i] = Math.random() * 2 + 0.5;
-    speeds[i] = Math.random() * 0.5 + 0.2;
+  for(let i=0;i<particleCount;i++){
+    positions[i*3]=(Math.random()-0.5)*80;positions[i*3+1]=(Math.random()-0.5)*60;positions[i*3+2]=(Math.random()-0.5)*40;
+    const isRed=Math.random()<0.1;
+    colors[i*3]=isRed?1:0.4;colors[i*3+1]=isRed?0.23:0.4;colors[i*3+2]=isRed?0.19:0.4;
+    speeds[i]=Math.random()*0.5+0.2;
   }
-
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-  geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-
-  const mat = new THREE.PointsMaterial({
-    size: 0.12,
-    vertexColors: true,
-    transparent: true,
-    opacity: 0.6,
-    blending: THREE.AdditiveBlending,
-    sizeAttenuation: true
-  });
-
-  const particles = new THREE.Points(geo, mat);
+  const pGeo=new THREE.BufferGeometry();
+  pGeo.setAttribute('position',new THREE.BufferAttribute(positions,3));
+  pGeo.setAttribute('color',new THREE.BufferAttribute(colors,3));
+  const pMat=new THREE.PointsMaterial({size:0.08,vertexColors:true,transparent:true,opacity:0.4,blending:THREE.AdditiveBlending,sizeAttenuation:true});
+  const particles=new THREE.Points(pGeo,pMat);
   scene.add(particles);
 
-  // Wireframe rings — radar effect
-  for(let r = 0; r < 4; r++){
-    const ringGeo = new THREE.RingGeometry(8 + r*5, 8.1 + r*5, 64);
-    const ringMat = new THREE.MeshBasicMaterial({
-      color: r === 0 ? 0xff3b30 : 0x222228,
-      transparent: true,
-      opacity: r === 0 ? 0.15 : 0.06,
-      side: THREE.DoubleSide
-    });
-    const ring = new THREE.Mesh(ringGeo, ringMat);
-    ring.rotation.x = Math.PI * 0.5;
-    ring.position.y = -5;
-    ring.position.x = 15;
-    scene.add(ring);
-  }
+  let mouseX=0,mouseY=0;
+  document.addEventListener('mousemove',e=>{mouseX=(e.clientX/window.innerWidth-0.5)*2;mouseY=(e.clientY/window.innerHeight-0.5)*2});
 
-  // Floating wireframe shoe-box shapes
-  for(let b = 0; b < 6; b++){
-    const boxGeo = new THREE.BoxGeometry(
-      1.5 + Math.random()*2,
-      0.8 + Math.random(),
-      2.5 + Math.random()*2
-    );
-    const edges = new THREE.EdgesGeometry(boxGeo);
-    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({
-      color: b < 2 ? 0xff3b30 : 0x333338,
-      transparent: true,
-      opacity: b < 2 ? 0.2 : 0.08
-    }));
-    line.position.set(
-      (Math.random()-0.5) * 40 + 10,
-      (Math.random()-0.5) * 20,
-      (Math.random()-0.5) * 20 - 5
-    );
-    line.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
-    line.userData = {
-      rotSpeed: (Math.random()-0.5) * 0.005,
-      floatSpeed: Math.random() * 0.3 + 0.2,
-      floatOffset: Math.random() * Math.PI * 2,
-      baseY: line.position.y
-    };
-    scene.add(line);
-  }
-
-  let mouseX = 0, mouseY = 0;
-  document.addEventListener('mousemove', e => {
-    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-  });
-
-  let time = 0;
+  let time=0;
   function animate(){
     requestAnimationFrame(animate);
-    time += 0.005;
-
-    // Float particles
-    const pos = geo.attributes.position.array;
-    for(let i = 0; i < particleCount; i++){
-      pos[i*3+1] += Math.sin(time * speeds[i] + i) * 0.003;
-      pos[i*3] += Math.cos(time * speeds[i] * 0.7 + i) * 0.002;
-    }
-    geo.attributes.position.needsUpdate = true;
-
-    // Rotate particle cloud
-    particles.rotation.y = time * 0.05 + mouseX * 0.1;
-    particles.rotation.x = mouseY * 0.05;
-
-    // Float boxes
-    scene.children.forEach(child => {
-      if(child.userData && child.userData.rotSpeed){
-        child.rotation.y += child.userData.rotSpeed;
-        child.rotation.x += child.userData.rotSpeed * 0.5;
-        child.position.y = child.userData.baseY + Math.sin(time * child.userData.floatSpeed + child.userData.floatOffset) * 2;
-      }
-    });
-
-    camera.position.x += (mouseX * 3 - camera.position.x) * 0.02;
-    camera.position.y += (-mouseY * 2 - camera.position.y) * 0.02;
+    time+=0.004;
+    const pos=pGeo.attributes.position.array;
+    for(let i=0;i<particleCount;i++){pos[i*3+1]+=Math.sin(time*speeds[i]+i)*0.0015;pos[i*3]+=Math.cos(time*speeds[i]*0.7+i)*0.001}
+    pGeo.attributes.position.needsUpdate=true;
+    particles.rotation.y=time*0.03+mouseX*0.06;
+    particles.rotation.x=mouseY*0.03;
+    camera.position.x+=(mouseX*2-camera.position.x)*0.015;
+    camera.position.y+=(-mouseY*1.5-camera.position.y)*0.015;
     camera.lookAt(scene.position);
-
-    renderer.render(scene, camera);
+    renderer.render(scene,camera);
   }
   animate();
-
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
+  window.addEventListener('resize',()=>{camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight)});
 })();
 
 /* ═══════════════════════════════════════════════════════════════════
-   3D TILT CARDS
+   PARALLAX DEPTH — Drop card images float in 3D on mouse move
    ═══════════════════════════════════════════════════════════════════ */
-function initTilt(selector){
-  document.querySelectorAll(selector).forEach(card => {
-    const inner = card.querySelector('.drop-card-inner') || card;
-    card.addEventListener('mousemove', e => {
+function initParallaxCards(){
+  document.querySelectorAll('.drop-card').forEach(card=>{
+    const img = card.querySelector('.drop-card-img img');
+    const shadow = card.querySelector('.depth-shadow');
+    if(!img) return;
+    card.addEventListener('mousemove', e=>{
       const rect = card.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
       const y = (e.clientY - rect.top) / rect.height - 0.5;
-      inner.style.transform = `perspective(800px) rotateY(${x*8}deg) rotateX(${-y*8}deg) scale(1.02)`;
+      // Image floats in 3D space
+      img.style.transform = `perspective(600px) rotateY(${x*12}deg) rotateX(${-y*8}deg) translateZ(20px) scale(1.05)`;
+      if(shadow) shadow.style.transform = `translateX(${x*10}px) scaleX(${1-Math.abs(x)*0.3})`;
     });
-    card.addEventListener('mouseleave', () => {
-      inner.style.transform = 'perspective(800px) rotateY(0) rotateX(0) scale(1)';
+    card.addEventListener('mouseleave', ()=>{
+      img.style.transform = 'perspective(600px) rotateY(0) rotateX(0) translateZ(0) scale(1)';
+      if(shadow) shadow.style.transform = 'translateX(0) scaleX(1)';
     });
   });
 }
@@ -474,7 +499,7 @@ document.getElementById('dropsGrid').innerHTML = drops.map((d,i) => `
   <div class="drop-card fade-up" style="transition-delay:${i*0.06}s">
     <div class="drop-card-inner">
       <div class="drop-status ${d.status}">${d.status==='live'?'\ud83d\udd34 Live Now':d.status==='soon'?'This Week':'Upcoming'}</div>
-      <div class="drop-card-img"><img src="${d.img}" alt="${d.name}" loading="lazy"></div>
+      <div class="drop-card-img"><img src="${d.img}" alt="${d.name}" loading="lazy"><div class="depth-shadow"></div><div class="shoe-reflection"></div></div>
       <div class="drop-card-body">
         <div class="drop-brand">${d.brand}</div>
         <div class="drop-name">${d.name}</div>
@@ -531,8 +556,8 @@ window.addEventListener('scroll',()=>{document.getElementById('nav').classList.t
 const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target)}})},{threshold:0.08,rootMargin:'0px 0px -40px 0px'});
 document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
 
-// Init 3D tilt on drop cards after render
-setTimeout(()=>initTilt('.drop-card'),100);
+// Init parallax depth on drop cards after render
+setTimeout(()=>initParallaxCards(),100);
 </script>
 </body>
 </html>
